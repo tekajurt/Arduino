@@ -1,5 +1,6 @@
 #include <SoftwareSerial.h>
 
+String quienLlama;
 //Create software serial object to communicate with SIM900
 SoftwareSerial mySerial(7, 8); //SIM900 Tx & Rx is connected to Arduino #7 & #8
 void SIM900power()
@@ -13,22 +14,12 @@ void SIM900power()
   digitalWrite(9, LOW);
   delay(3000);
   Serial.println("done");
-  
-}
-void setup()
-{ 
-  //Begin serial communication with Arduino and SIM900
-  Serial.begin(9600);
-  mySerial.begin(19200);
-  // pin para mostrar cuando termina de cargar
-  pinMode(13, OUTPUT); 
-  SIM900power();
   Serial.print("Esperando conexion...");
   delay(25000); //Retardo para que encuentra a una RED
-  Serial.print("done");
-  //Begin serial communication with Arduino and Arduino IDE (Serial Monitor)
-
-
+  Serial.println("done");
+  
+}
+void ConfigSim900(){
   
   Serial.println("Initializing...");
   delay(1000);
@@ -46,6 +37,19 @@ void setup()
   updateSerial();
   //mySerial.println("AT S0=2"); //autoawnser on 2 rings
   //updateSerial();
+}
+void setup()
+{ 
+  //Begin serial communication with Arduino and SIM900
+  Serial.begin(9600);
+  mySerial.begin(19200);
+  // pin para mostrar cuando termina de cargar
+  pinMode(13, OUTPUT); 
+  //prende el sim900
+  //SIM900power();
+  
+  //Begin serial communication with Arduino and Arduino IDE (Serial Monitor)
+  ConfigSim900();
   
   updateSerial();
   digitalWrite(13, HIGH);
@@ -54,7 +58,34 @@ void setup()
 
 void loop()
 {
-  updateSerial();
+  quienLlama = "";
+
+   while (mySerial.available()>0){
+      
+      delay(10);
+      quienLlama += (char)mySerial.read();
+      //Serial.println(quienLlama);
+
+   }
+   //Serial.print("el mensaje culiao es"); 
+   
+   if (quienLlama.indexOf("RING")>-1){
+      //Serial.println("alguien llama");
+      delay(1000);
+      String num;
+      int inicio=quienLlama.indexOf('"')+1;
+      int fin=inicio+12;
+      num=quienLlama.substring(inicio,fin);    
+      if (num=="+56995562730"){
+         Serial.print("NUMERO ACERTADO");
+         mySerial.println("ATA");
+      }else{
+         Serial.print("NUMERO ERRONEO");
+         mySerial.println("ATH");
+         
+      }
+  }
+  //updateSerial();
 }
 
 void updateSerial()
