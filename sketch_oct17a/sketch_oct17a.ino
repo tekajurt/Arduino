@@ -23,7 +23,9 @@ void setup()
   // pin para mostrar cuando termina de cargar
   pinMode(13, OUTPUT); 
   SIM900power();
+  Serial.print("Esperando conexion...");
   delay(25000); //Retardo para que encuentra a una RED
+  Serial.print("done");
   //Begin serial communication with Arduino and Arduino IDE (Serial Monitor)
 
 
@@ -31,6 +33,7 @@ void setup()
   Serial.println("Initializing...");
   delay(1000);
   mySerial.println("AT+IPR=19200");
+  updateSerial();
   mySerial.println("AT"); //Handshaking with SIM900
   updateSerial();
   mySerial.println("AT+CSQ"); //Signal quality test, value range is 0-31 , 31 is the best
@@ -38,6 +41,8 @@ void setup()
   mySerial.println("AT+CCID"); //Read SIM information to confirm whether the SIM is plugged
   updateSerial();
   mySerial.println("AT+CREG?"); //Check whether it has registered in the network
+  updateSerial();
+  mySerial.println("AT+CLIP=1"); 
   updateSerial();
   //mySerial.println("AT S0=2"); //autoawnser on 2 rings
   //updateSerial();
