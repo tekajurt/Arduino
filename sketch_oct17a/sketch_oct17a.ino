@@ -1,6 +1,8 @@
 #include <SoftwareSerial.h>
-
+String arraynum[]= {"+56995562730","+56957503575"};
+int saiz = (sizeof(arraynum)/sizeof(arraynum[0]));
 String quienLlama;
+boolean wrong = true;
 //Create software serial object to communicate with SIM900
 SoftwareSerial mySerial(7, 8); //SIM900 Tx & Rx is connected to Arduino #7 & #8
 void SIM900power()
@@ -46,12 +48,13 @@ void setup()
   // pin para mostrar cuando termina de cargar
   pinMode(13, OUTPUT); 
   //prende el sim900
-  //SIM900power();
+  SIM900power();
   
   //Begin serial communication with Arduino and Arduino IDE (Serial Monitor)
   ConfigSim900();
   
   updateSerial();
+  delay(1000);
   digitalWrite(13, HIGH);
 
 }
@@ -75,15 +78,21 @@ void loop()
       String num;
       int inicio=quienLlama.indexOf('"')+1;
       int fin=inicio+12;
-      num=quienLlama.substring(inicio,fin);    
-      if (num=="+56995562730"){
-         Serial.print("NUMERO ACERTADO");
+      num=quienLlama.substring(inicio,fin); 
+      for (int i =0;i<saiz;i++){
+        if (num==arraynum[i]){
+         Serial.println("NUMERO ACERTADO");
          mySerial.println("ATA");
-      }else{
-         Serial.print("NUMERO ERRONEO");
+         wrong = false;
+        }
+      }
+      if(wrong){
+         Serial.println("NUMERO ERRONEO");
          mySerial.println("ATH");
          
+      
       }
+      
   }
   //updateSerial();
 }
