@@ -10,25 +10,36 @@ void SIM900power()
   digitalWrite(9, LOW);
   delay(1000);
   digitalWrite(9, HIGH);
-  delay(2000);
+  delay(1000);
   digitalWrite(9, LOW);
-  delay(3000);
+}
+void updateSerial()
+{
+  delay(500);
+  while (Serial.available())
+  {
+    mySerial.write(Serial.read());//Forward what Serial received to Software Serial Port
+  }
+  while (mySerial.available())
+  {
+    Serial.write(mySerial.read());//Forward what Software Serial received to Serial Port
+  }
 }
 void setup()
 {
-  pinMode(13, OUTPUT); // pin para mostrar cuando termina de cargar
-  SIM900power();
-  delay(25000); //Retardo para que encuentra a una RED
-  //Begin serial communication with Arduino and Arduino IDE (Serial Monitor)
   Serial.begin(9600);
+  Serial.println("Partiendo");
+  SIM900power();
+  //Begin serial communication with Arduino and Arduino IDE (Serial Monitor)
+  ;
 
   //Begin serial communication with Arduino and SIM900
   mySerial.begin(9600);
 
   Serial.println("Initializing...");
   delay(1000);
-
-  mySerial.println("AT"); //Handshaking with SIM900
+  
+  mySerial.write("AT"); //Handshaking with SIM900
   updateSerial();
   mySerial.println("AT+CSQ"); //Signal quality test, value range is 0-31 , 31 is the best
   updateSerial();
@@ -39,6 +50,7 @@ void setup()
   digitalWrite(13, HIGH);
 
 }
+
 void check_Incoming()
 {
     if(mySerial.available()) //If GSM is saying something
@@ -54,18 +66,7 @@ void check_Incoming()
   }
   }
 }
-void updateSerial()
-{
-  delay(500);
-  while (Serial.available())
-  {
-    mySerial.write(Serial.read());//Forward what Serial received to Software Serial Port
-  }
-  while (mySerial.available())
-  {
-    Serial.write(mySerial.read());//Forward what Software Serial received to Serial Port
-  }
-}
+
 void loop()
 {
   if (Fdata == "RING") //If the GSM module says RING
